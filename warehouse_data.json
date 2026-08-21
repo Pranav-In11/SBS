@@ -1,0 +1,86 @@
+{
+"warehouses": [
+{
+"id": "del_frn_07L",
+"name": "Delhi Furniture 07L"
+},
+{
+"id": "mum_bhi_wh_l_01l",
+"name": "Mumbai Xdock Warehouse"
+},
+{
+"id": "blr_fc_01",
+"name": "Bangalore FC 01"
+}
+],
+"picklists": [
+{
+"id": "F564836431",
+"dispatchTime": "October 19 03:25 AM",
+"type": "NORMAL",
+"source": "store",
+"destination": "drop_zone",
+"status": "PENDING",
+"items": [
+{
+"location": "A1-B2-C3-001",
+"wid": "WID123",
+"title": "Generic Non-Serialized Item",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Normal+Item",
+"isSerialized": false,
+"status": "PENDING"
+},
+{
+"location": "A1-B2-C3-002",
+"wid": "WID124",
+"title": "Generic Box Set",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Box+Set",
+"isSerialized": false,
+"status": "PENDING"
+}
+]
+},
+{
+"id": "F593229871",
+"dispatchTime": "February 16 05:10 PM",
+"type": "PICK PLUS_SBS",
+"source": "store",
+"destination": "drop_zone",
+"status": "PENDING",
+"items": [
+{
+"location": "R1-C7-G0-048",
+"wid": "XI90P8R",
+"title": "LG 242 8806091271303, 8806091271297 Grey Shiny Steel GL-I292RPZX 37099",
+"type": "refrigerator_new",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=LG+Fridge",
+"isSerialized": true,
+"expectedSerial": "JXHM304NRCQ062523IN",
+"status": "PENDING"
+}
+]
+},
+{
+"id": "F593221701",
+"dispatchTime": "February 16 10:50 PM",
+"type": "PICK PLUS_SBS",
+"source": "store",
+"destination": "drop_zone",
+"status": "PENDING",
+"items": [
+{
+"location": "R2-D4-G0-112",
+"wid": "AC77K9L",
+"title": "Samsung 1.5 Ton AC White 12849",
+"type": "ac_new",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Samsung+AC",
+"isSerialized": true,
+"expectedSerial": "SAM1029384756",
+"status": "PENDING"
+}
+]
+}
+]
+}

@@ -17,7 +17,7 @@
 {
 "id": "F564836431",
 "dispatchTime": "October 19 03:25 AM",
-"type": "NORMAL",
+"type": "PICK PLUS_SBS",
 "source": "store",
 "destination": "drop_zone",
 "status": "PENDING",

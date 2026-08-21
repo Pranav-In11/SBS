@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flo-lite</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandBlue: '#2874f0',
+                        floBlue: '#3f51b5',
+                        floLightBlue: '#e2e5f4',
+                        borderGray: '#dfe1e6',
+                        textGray: '#777777',
+                        badgeGreen: '#5cb85c',
+                        progressYellow: '#f3e49b',
+                        progressGreen: '#7bea7a',
+                        dangerRed: '#de350b',
+                        pinkCancel: '#ff4081',
+                        lightYellowBg: '#fff6bf',
+                    },
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e5e7eb;
+            margin: 0; padding: 0;
+            user-select: none;
+            font-size: 14px;
+        }
+        .app-wrapper {
+            position: relative;
+            height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #fff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            overflow-y: auto;
+        }
+        .screen.active { display: flex; }
+        
+        .flolite-header {
+            background-color: #3f51b5;
+            color: #fff;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2);
+            flex-shrink: 0; z-index: 10;
+        }
+        
+        .breadcrumb {
+            background-color: #efefef;
+            padding: 5px 10px; font-size: 12px; color: #777;
+            display: flex; flex-wrap: wrap; align-items: center;
+            flex-shrink: 0; text-transform: uppercase;
+        }
+        .breadcrumb-item { display: inline-flex; align-items: center; }
+        .breadcrumb-item.active { color: #000; font-weight: bold; }
+        .breadcrumb-link { color: #3f51b5; cursor: pointer; text-decoration: none; }
+        .breadcrumb-separator { margin: 0 5px; }
+
+        .progress-bar-container {
+            width: 100%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; position: relative; height: 20px; flex-shrink: 0;
+        }
+        .progress-bar-fill {
+            position: absolute; left: 0; top: 0; bottom: 0;
+            transition: width 0.3s ease; z-index: 0;
+        }
+        .progress-bar-text { position: relative; font-size: 11px; z-index: 1; }
+        
+        .flolite-input {
+            border: 1px solid rgba(0, 0, 0, 0.4);
+            border-radius: 3px; width: 100%; height: 36px; padding: 10px;
+            font-size: 14px; outline: none;
+        }
+        .flolite-input:focus { border-color: #0065ff; }
+
+        .flolite-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; padding: 8px 16px; color: white; background-color: #0065ff;
+            border-radius: 3px; text-transform: uppercase; font-size: 12px; font-weight: 500;
+            outline: none; border: none; min-width: 100px;
+        }
+        .flolite-btn.danger { background-color: #de350b; }
+        .flolite-btn.pink { background-color: #ff4081; }
+
+        /* Scanner Animation */
+        .scanner-container { position: relative; text-align: center; display: flex; justify-content: center; align-items: center; }
+        .scanner-line {
+            position: absolute; left: 10%; right: 10%; height: 20px;
+            background: linear-gradient(transparent, #f44336);
+            animation: scan 2s infinite linear; will-change: transform;
+        }
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            50% { transform: translateY(150%); }
+            100% { transform: translateY(-100%); }
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: absolute; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 90%; max-width: 400px; box-shadow: 0 14px 45px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .modal-header { background: #0065ff; color: white; padding: 15px; font-size: 16px; font-weight: 500; }
+        .modal-body { padding: 20px 15px; font-size: 14px; }
+        .modal-footer { padding: 10px 15px; display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* Toasts */
+        .toast-container { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 320px; pointer-events: none; }
+        .toast { background-color: #42516e; color: white; padding: 10px; border-radius: 4px; font-size: 14px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; display: flex; align-items: center; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background-color: #e74c3c; }
+        .toast.success { background-color: #07bc0c; }
+    </style>
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <!-- Toast Container -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <div id="confirm-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">Confirm scan</div>
+                <div class="modal-body">
+                    <div class="text-gray-600 mb-1 text-sm">Scanned barcode</div>
+                    <div id="modal-barcode-val" class="text-[#de350b] font-bold mb-4 text-base"></div>
+                    <div class="text-sm">Is this correct?</div>
+                </div>
+                <div class="modal-footer border-t border-gray-100">
+                    <button class="flolite-btn" onclick="confirmScan(true)">CONFIRM</button>
+                    <button class="flolite-btn !bg-white !text-blue-600 !border !border-gray-300 shadow-sm" onclick="confirmScan(false)">CANCEL</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-login" class="screen active bg-[#f3f3f3]">
+            <nav class="w-full bg-[#2874f0] flex items-center px-4 shadow-md" style="min-height: 65px;">
+                 <img width="149" src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/fkheaderlogo_explore-56f8f5.svg" alt="Flipkart" onerror="this.outerHTML='<h1 class=\'text-white font-bold text-xl italic tracking-wider\'>Flipkart</h1>'">
+            </nav>
+
+            <div class="p-4 flex-1 flex flex-col items-center justify-start mt-10">
+                <div class="w-full max-w-[320px] mb-6 p-4 border-2 border-[#ffd324] bg-[#fff6bf] text-[#514721] text-center text-[13px] leading-relaxed">
+                    <b>Please do not share your password with anyone.</b><br>
+                    Any user found sharing password with any one whatsoever case may be, <br> 
+                    <b><span class="text-[#ca0000]">strict disciplinary action including termination</span></b> will be initiated against the defaulter.
+                </div>
+
+                <div class="w-full max-w-[320px] bg-white border border-[#ccc] rounded shadow-sm p-0">
+                    <div class="text-center text-[22px] border-b border-[#cacaca] py-[15px] mb-[5px] text-[#333]">
+                        Login
+                    </div>
+                    
+                    <form id="login-form" class="p-[15px]">
+                        <div class="text-center text-[13px] mb-4 text-[#333]">Enter LDAP credentials</div>
+                        <div class="mb-4">
+                            <label class="block text-[14px] font-normal mb-1">User Name</label>
+                            <input type="text" id="username" value="admin" class="flolite-input" placeholder="User Name" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-[14px] font-normal mb-1">Password</label>
+                            <input type="password" id="password" value="password" class="flolite-input" placeholder="Password" required>
+                        </div>
+                        <div class="flex justify-center mt-4">
+                            <button type="submit" class="flolite-btn w-full !bg-[#2874f0] py-2 text-sm shadow">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-warehouse" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-3 text-[10px] leading-tight opacity-80">10 mbps<br>150 ms</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="p-4 flex-1 bg-[#f3f3f3]">
+                <div class="mb-5 bg-white p-2 rounded shadow-sm border border-gray-300">
+                    <input type="text" placeholder="Search warehouse..." class="w-full text-sm outline-none">
+                </div>
+                
+                <ul id="warehouse-list" class="border border-[#dfe1e6] rounded-[3px] list-none p-2 m-0 bg-white shadow-sm overflow-y-auto max-h-[70vh]">
+                    <!-- Injected via JS from Database -->
+                </ul>
+            </div>
+        </div>
+
+        <div id="screen-picklists" class="screen bg-[#f3f3f3]">
+            <header class="flolite-header justify-between">
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">10 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="breadcrumb !bg-[#efefef] !border-b-0">
+                <span class="breadcrumb-item active text-[#3f51b5]">INBOX <span class="text-gray-500 mx-1 font-normal">/</span></span>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto flex flex-col p-[10px]">
+                <!-- Segmented Control -->
+                <div class="flex border border-[#ccc] rounded-[4px] mb-4 bg-white overflow-hidden text-sm shrink-0">
+                    <button class="flex-1 py-1.5 text-center font-bold bg-[#e2e5f4] text-[#333] border-r border-[#ccc]">COB</button>
+                    <button class="flex-1 py-1.5 text-center text-[#777]">NCOB</button>
+                </div>
+                
+                <div class="text-center mb-4 shrink-0">
+                    <button class="border border-[#ccc] rounded-[20px] px-4 py-1 text-[12px] text-[#3f51b5] inline-flex items-center bg-transparent hover:bg-white transition-colors" onclick="showToast('Refreshed tasks')">
+                        <i class="material-icons text-[16px] mr-1">refresh</i> Refresh
+                    </button>
+                </div>
+                
+                <!-- Picklist Cards Container -->
+                <div class="space-y-3 pb-6" id="picklist-container">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-tote" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2 cursor-pointer" onclick="nav('screen-picklists')">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">10 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+
+            <div class="breadcrumb">
+                <span class="breadcrumb-item"><a class="breadcrumb-link" onclick="nav('screen-picklists')">INBOX</a><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link" id="tote-pl-id">F520908531</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item active text-black">ADD-TOTE</span>
+            </div>
+
+            <div class="progress-bar-container bg-[#f3e49b] text-[#514721]">
+                <div class="progress-bar-fill bg-[#f3e49b]" style="width: 100%"></div>
+                <span class="progress-bar-text text-[#514721]" id="tote-progress-text">0 / 1</span>
+            </div>
+            
+            <div class="p-4 flex-1 flex flex-col items-center pt-6">
+                <h2 class="text-[20px] font-bold text-[#333] mb-1">Pick zone 7</h2>
+                <div class="text-[13px] text-[#777] mb-8 flex items-center">
+                    Remaining Totes: <span class="ml-1 bg-[#de350b] text-white px-2 py-0.5 rounded text-[12px] font-bold shadow-sm">1</span>
+                </div>
+                
+                <!-- Giant Tote Graphic matching mock -->
+                <div class="w-full max-w-[280px] relative mb-12 flex justify-center">
+                    <svg viewBox="0 0 100 100" class="w-full h-auto">
+                        <!-- Thick stylized tote -->
+                        <rect x="10" y="25" width="80" height="10" rx="3" fill="#000" />
+                        <path d="M15,35 L15,85 C15,87.7 17.2,90 20,90 L80,90 C82.8,90 85,87.7 85,85 L85,35 Z" fill="none" stroke="#000" stroke-width="4"/>
+                        <rect x="40" y="45" width="20" height="8" rx="2" fill="none" stroke="#000" stroke-width="3"/>
+                        
+                        <!-- Barcode symbol -->
+                        <g transform="translate(35, 60) scale(0.3)">
+                            <path d="M10,10 L30,10 L30,15 L15,15 L15,30 L10,30 Z" fill="#000"/>
+                            <path d="M90,10 L70,10 L70,15 L85,15 L85,30 L90,30 Z" fill="#000"/>
+                            <path d="M10,90 L30,90 L30,85 L15,85 L15,70 L10,70 Z" fill="#000"/>
+                            <path d="M90,90 L70,90 L70,85 L85,85 L85,70 L90,70 Z" fill="#000"/>
+                            <rect x="20" y="25" width="5" height="50" fill="#000"/>
+                            <rect x="30" y="25" width="10" height="50" fill="#000"/>
+                            <rect x="45" y="25" width="4" height="50" fill="#000"/>
+                            <rect x="55" y="25" width="8" height="50" fill="#000"/>
+                            <rect x="68" y="25" width="5" height="50" fill="#000"/>
+                            <rect x="78" y="25" width="6" height="50" fill="#000"/>
+                        </g>
+                    </svg>
+                    <!-- Red Scanner Line overlaying the barcode -->
+                    <div class="scanner-line !top-[75%] !h-[12px] opacity-80 !bg-gradient-to-b !from-transparent !via-[#f44336] !to-transparent shadow-[0_0_10px_red]"></div>
+                </div>
+                
+                <form id="tote-form" class="w-full px-6 mt-auto mb-10 relative">
+                    <div class="relative w-full max-w-[200px] mx-auto">
+                        <div class="absolute w-[200%] h-[1px] bg-black top-1/2 right-full translate-x-[40%] -z-10"></div>
+                        <input type="text" id="tote-input" class="flolite-input border-black !border-[1px] text-left text-[14px] bg-white font-mono shadow-sm" placeholder="178-42349" required autocomplete="off">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="screen-location" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                 <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2 cursor-pointer" onclick="nav('screen-picklists')">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">10 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="breadcrumb">
+                <span class="breadcrumb-item"><a class="breadcrumb-link" onclick="nav('screen-picklists')">INBOX</a><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link" id="loc-pl-id">F520908531</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item active text-black">SCAN-LOCATION</span>
+            </div>
+
+            <div class="progress-bar-container bg-[#f3e49b] text-[#514721]">
+                <div class="progress-bar-fill bg-[#f3e49b]" style="width: 100%"></div>
+                <span class="progress-bar-text text-[#514721]" id="loc-progress-text">0 / 1</span>
+            </div>
+            
+            <div class="flex-1 flex flex-col items-center justify-center p-4 pt-10">
+                <div class="flex w-full items-center justify-center gap-4 mb-16">
+                     <!-- Shelf Image SVG Match -->
+                     <div class="w-[140px] h-[180px]">
+                         <svg viewBox="0 0 100 120" class="w-full h-full">
+                            <!-- Frame -->
+                            <rect x="15" y="10" width="4" height="105" fill="#333"/>
+                            <rect x="85" y="10" width="4" height="105" fill="#333"/>
+                            <rect x="30" y="20" width="3" height="95" fill="#777"/>
+                            
+                            <!-- Shelves -->
+                            <polygon points="17,35 30,25 95,25 87,35" fill="#e0e0e0" stroke="#333" stroke-width="1"/>
+                            <polygon points="17,65 30,55 95,55 87,65" fill="#e0e0e0" stroke="#333" stroke-width="1"/>
+                            <polygon points="17,95 30,85 95,85 87,95" fill="#e0e0e0" stroke="#333" stroke-width="1"/>
+                            
+                            <!-- Cross braces -->
+                            <line x1="17" y1="35" x2="85" y2="65" stroke="#777" stroke-width="1.5"/>
+                            <line x1="17" y1="65" x2="85" y2="95" stroke="#777" stroke-width="1.5"/>
+                         </svg>
+                     </div>
+                     
+                     <!-- Barcode Target -->
+                     <div class="scanner-container flex-col w-[120px]">
+                        <svg viewBox="0 0 100 100" class="w-[80px] h-[80px]">
+                            <g transform="scale(0.8) translate(10,10)">
+                               <path d="M10,10 L30,10 L30,15 L15,15 L15,30 L10,30 Z M90,10 L70,10 L70,15 L85,15 L85,30 L90,30 Z M10,90 L30,90 L30,85 L15,85 L15,70 L10,70 Z M90,90 L70,90 L70,85 L85,85 L85,70 L90,70 Z" fill="#000"/>
+                               <rect x="20" y="25" width="6" height="50" fill="#000"/>
+                               <rect x="30" y="25" width="8" height="50" fill="#000"/>
+                               <rect x="42" y="25" width="4" height="50" fill="#000"/>
+                               <rect x="50" y="25" width="10" height="50" fill="#000"/>
+                               <rect x="64" y="25" width="5" height="50" fill="#000"/>
+                               <rect x="74" y="25" width="6" height="50" fill="#000"/>
+                            </g>
+                        </svg>
+                        <div class="scanner-line !h-[12px] !top-[30%] opacity-80 !bg-gradient-to-b !from-transparent !via-[#f44336] !to-transparent shadow-[0_0_8px_red]"></div>
+                        <div id="target-location" class="font-mono font-bold mt-2 text-[14px]">R1-C7-G0-048</div>
+                     </div>
+                </div>
+                
+                <form id="loc-form" class="w-full px-6 mt-10">
+                     <div class="relative w-full max-w-[200px] mx-auto">
+                        <div class="absolute w-[200%] h-[1px] bg-black top-1/2 right-full translate-x-[40%] -z-10"></div>
+                        <input type="text" id="loc-input" class="flolite-input border-black !border-[1px] text-left font-mono text-[14px] bg-white shadow-sm" placeholder="R1-C7-G0-048" required autocomplete="off">
+                     </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="screen-wid" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                 <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2 cursor-pointer" onclick="nav('screen-picklists')">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">10 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="breadcrumb">
+                <span class="breadcrumb-item"><a class="breadcrumb-link" onclick="nav('screen-picklists')">INBOX</a><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link" id="wid-pl-id">F520908531</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item active text-black">SCAN-ITEM</span>
+            </div>
+
+            <div class="progress-bar-container bg-[#f3e49b] text-[#514721] mb-2">
+                <div class="progress-bar-fill bg-[#f3e49b]" style="width: 100%"></div>
+                <span class="progress-bar-text text-[#514721]" id="wid-progress-text">0 / 1</span>
+            </div>
+            
+            <div class="flex-1 flex flex-col p-4 overflow-y-auto">
+                
+                <!-- Info Headers (Tote & Location) -->
+                <div class="flex justify-center items-center gap-6 mb-4 text-[13px] font-mono font-bold text-[#555]">
+                    <div class="flex items-center gap-2">
+                        <i class="material-icons text-[16px]">inbox</i>
+                        <span id="wid-tote-display">178-42349</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                        <span id="wid-loc-display">R1-C7-G0-048</span>
+                    </div>
+                </div>
+
+                <!-- Product Image & Details -->
+                <div class="text-center mb-6">
+                    <div class="h-[180px] w-full flex justify-center items-center mb-3">
+                        <img id="product-img" src="" alt="Product" class="max-h-full object-contain">
+                    </div>
+                    <div class="text-[#3f51b5] text-[13px] px-4 font-medium leading-relaxed" id="product-title">
+                        LG 242 8806091271303...
+                    </div>
+                </div>
+
+                <!-- Barcode Scanner Graphic -->
+                <div class="scanner-container flex-col h-[70px] mb-6">
+                    <svg viewBox="0 0 100 100" class="w-[80px] h-[80px]">
+                        <g transform="scale(0.8) translate(10,10)">
+                           <path d="M10,10 L30,10 L30,15 L15,15 L15,30 L10,30 Z M90,10 L70,10 L70,15 L85,15 L85,30 L90,30 Z M10,90 L30,90 L30,85 L15,85 L15,70 L10,70 Z M90,90 L70,90 L70,85 L85,85 L85,70 L90,70 Z" fill="#000"/>
+                           <rect x="20" y="25" width="4" height="50" fill="#000"/>
+                           <rect x="28" y="25" width="8" height="50" fill="#000"/>
+                           <rect x="40" y="25" width="4" height="50" fill="#000"/>
+                           <rect x="48" y="25" width="10" height="50" fill="#000"/>
+                           <rect x="62" y="25" width="6" height="50" fill="#000"/>
+                           <rect x="72" y="25" width="8" height="50" fill="#000"/>
+                        </g>
+                    </svg>
+                    <div class="scanner-line !h-[14px] !top-[35%] opacity-80 !bg-gradient-to-b !from-transparent !via-[#f44336] !to-transparent shadow-[0_0_10px_red]"></div>
+                    <div id="target-wid" class="font-mono font-bold mt-1 text-[15px]">XI90P8R</div>
+                </div>
+                
+                <!-- WID scan form -->
+                <form id="wid-form" class="w-full mb-6 relative">
+                    <div class="relative w-full max-w-[240px] mx-auto">
+                        <div class="absolute w-[200%] h-[1px] bg-black top-1/2 right-full translate-x-[40%] -z-10"></div>
+                        <input type="text" id="wid-input" class="flolite-input border-black !border-[1px] font-mono text-[14px] px-2 bg-white" placeholder="XI90P8R" required autocomplete="off">
+                    </div>
+                </form>
+
+                <div class="flex justify-center gap-4 mt-auto">
+                    <button type="button" class="flolite-btn bg-[#0065ff] flex-1 max-w-[150px] shadow" onclick="closeTote()">Close Tote</button>
+                    <button type="button" class="flolite-btn !bg-[#de350b] flex-1 max-w-[150px] shadow" onclick="sendToIRT()">Send to IRT</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-serial" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                 <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2 cursor-pointer" onclick="nav('screen-picklists')">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">10 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="breadcrumb">
+                <span class="breadcrumb-item"><a class="breadcrumb-link" onclick="nav('screen-picklists')">INBOX</a><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link" id="serial-pl-id">F520908531</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item active text-black">SCAN-ITEM</span>
+            </div>
+
+            <div class="progress-bar-container bg-[#f3e49b] text-[#514721] mb-2">
+                <div class="progress-bar-fill bg-[#f3e49b]" style="width: 100%"></div>
+                <span class="progress-bar-text text-[#514721]" id="serial-progress-text">0 / 1</span>
+            </div>
+            
+            <div class="flex-1 flex flex-col p-4 overflow-y-auto">
+                <div class="flex justify-center items-center gap-6 mb-4 text-[13px] font-mono font-bold text-[#555]">
+                    <div class="flex items-center gap-2">
+                        <i class="material-icons text-[16px]">inbox</i>
+                        <span id="serial-tote-display">178-42349</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                        <span id="serial-loc-display">R1-C7-G0-048</span>
+                    </div>
+                </div>
+
+                <div class="text-center mb-6">
+                    <div class="h-[180px] w-full flex justify-center items-center mb-3">
+                        <img id="serial-product-img" src="" alt="Product" class="max-h-full object-contain">
+                    </div>
+                    <div class="text-[#3f51b5] text-[13px] px-4 font-medium leading-relaxed" id="serial-product-title">
+                        Product Title...
+                    </div>
+                </div>
+
+                <div class="scanner-container flex-col h-[70px] mb-6">
+                    <svg viewBox="0 0 100 100" class="w-[80px] h-[80px]">
+                        <g transform="scale(0.8) translate(10,10)">
+                           <path d="M10,10 L30,10 L30,15 L15,15 L15,30 L10,30 Z M90,10 L70,10 L70,15 L85,15 L85,30 L90,30 Z M10,90 L30,90 L30,85 L15,85 L15,70 L10,70 Z M90,90 L70,90 L70,85 L85,85 L85,70 L90,70 Z" fill="#000"/>
+                           <rect x="20" y="25" width="4" height="50" fill="#000"/>
+                           <rect x="28" y="25" width="8" height="50" fill="#000"/>
+                           <rect x="40" y="25" width="4" height="50" fill="#000"/>
+                           <rect x="48" y="25" width="10" height="50" fill="#000"/>
+                           <rect x="62" y="25" width="6" height="50" fill="#000"/>
+                           <rect x="72" y="25" width="8" height="50" fill="#000"/>
+                        </g>
+                    </svg>
+                    <div class="scanner-line !h-[14px] !top-[35%] opacity-80 !bg-gradient-to-b !from-transparent !via-[#f44336] !to-transparent shadow-[0_0_10px_red]"></div>
+                    <div class="font-mono font-bold mt-1 text-[15px] text-[#ffab00]">SCAN SERIAL NO.</div>
+                </div>
+                
+                <form id="serial-form" class="w-full mb-6 relative">
+                    <div class="relative w-full max-w-[280px] mx-auto">
+                        <div class="absolute w-[200%] h-[1px] bg-black top-1/2 right-full translate-x-[40%] -z-10"></div>
+                        <input type="text" id="serial-input" class="flolite-input border-black !border-[1px] font-mono text-[14px] px-2 bg-white" placeholder="JXHM304NRCQ062523IN" required autocomplete="off">
+                    </div>
+                </form>
+
+                <div class="flex justify-center gap-4 mt-auto">
+                    <button type="button" class="flolite-btn bg-[#0065ff] flex-1 max-w-[150px] shadow" onclick="closeTote()">Close Tote</button>
+                    <button type="button" class="flolite-btn !bg-[#de350b] flex-1 max-w-[150px] shadow" onclick="sendToIRT()">Send to IRT</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-qc" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                 <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2 cursor-pointer" onclick="nav('screen-picklists')">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">10 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="breadcrumb">
+                <span class="breadcrumb-item"><a class="breadcrumb-link" onclick="nav('screen-picklists')">INBOX</a><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link" id="qc-pl-id">F520908531</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link">SCAN-ITEM</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item active text-black">QC</span>
+            </div>
+
+            <div class="progress-bar-container bg-[#f3e49b] text-[#514721]">
+                <div class="progress-bar-fill bg-[#f3e49b]" style="width: 100%"></div>
+                <span class="progress-bar-text text-[#514721]" id="qc-progress-text">0 / 1</span>
+            </div>
+            
+            <div class="flex-1 flex flex-col p-5 overflow-y-auto">
+                <div class="flex gap-4 mb-8 items-start">
+                    <div class="w-[90px] h-[120px] shrink-0">
+                        <img id="qc-product-img" src="" class="w-full h-full object-contain" alt="Product">
+                    </div>
+                    <div class="text-[13px] text-[#333] leading-relaxed">
+                        <div class="mb-1"><span class="text-[#777]">Product:</span> <b id="qc-product-title" class="text-[#3f51b5]">LG 242...</b></div>
+                        <div><span class="text-[#777]">Type:</span> <b id="qc-product-type">refrigerator_new</b></div>
+                    </div>
+                </div>
+
+                <form id="qc-form" class="flex flex-col flex-1">
+                    <div class="mb-6">
+                        <label class="block font-bold text-[#333] mb-3 text-[14px]"><span class="text-[#ca0000]">*</span> QC passed?</label>
+                        <div class="flex items-center gap-6">
+                            <label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="radio" name="qc_pass" value="yes" checked class="w-4 h-4 text-blue-600"> Yes</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="radio" name="qc_pass" value="no" class="w-4 h-4 text-blue-600"> No</label>
+                        </div>
+                    </div>
+
+                    <div id="qc-fail-reason-block" class="mb-6 opacity-40 pointer-events-none transition-opacity">
+                        <label class="block font-bold text-[#333] mb-3 text-[14px]"><span class="text-[#ca0000]">*</span> QC Fail Reason?</label>
+                        <div class="flex flex-wrap gap-4 text-[13px] font-medium">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="qc_reason" value="null" checked class="w-4 h-4"> Null</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="qc_reason" value="receiving" class="w-4 h-4"> Receiving Error</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="qc_reason" value="damaged" class="w-4 h-4"> Damaged Product</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="qc_reason" value="short" class="w-4 h-4"> Short pick</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-4">
+                        <button type="submit" class="flolite-btn w-full !bg-[#003f91] py-3 text-[14px] shadow">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="screen-close-tote" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                 <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2 cursor-pointer" onclick="nav('screen-picklists')">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">1.55 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="breadcrumb">
+                <span class="breadcrumb-item"><a class="breadcrumb-link" onclick="nav('screen-picklists')">INBOX</a><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link" id="close-pl-id">F520908531</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item active text-black">CLOSE-TOTE</span>
+            </div>
+
+            <!-- Green Progress Bar for completion -->
+            <div class="progress-bar-container bg-[#7bea7a] text-[#555]">
+                <span class="progress-bar-text" id="close-progress-text">1 / 1</span>
+            </div>
+            
+            <div class="flex-1 flex flex-col items-center justify-center p-6">
+                <!-- Giant Tote Graphic -->
+                <div class="w-full max-w-[280px] relative mb-4">
+                    <svg viewBox="0 0 100 80" class="w-full h-auto">
+                        <rect x="10" y="15" width="80" height="10" rx="3" fill="#000" />
+                        <path d="M15,25 L15,75 C15,77.7 17.2,80 20,80 L80,80 C82.8,80 85,77.7 85,75 L85,25 Z" fill="none" stroke="#000" stroke-width="4"/>
+                        <rect x="40" y="35" width="20" height="8" rx="2" fill="none" stroke="#000" stroke-width="3"/>
+                    </svg>
+                </div>
+                
+                <h2 class="text-[20px] font-bold text-[#333] mb-12" id="close-tote-display">178-42349</h2>
+                
+                <div class="flex justify-between w-full max-w-[300px] mt-8">
+                    <button class="flolite-btn !bg-[#0065ff] px-6 py-2 shadow" onclick="submitCloseTote()">CLOSE TOTE</button>
+                    <button class="flolite-btn !bg-[#ff4081] px-6 py-2 shadow" onclick="nav('screen-picklists')">CANCEL</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-drop" class="screen bg-white">
+            <header class="flolite-header justify-between">
+                 <div class="flex items-center">
+                    <i class="material-icons text-[18px] mr-2 cursor-pointer" onclick="nav('screen-picklists')">menu</i>
+                    <span class="font-bold text-[14px]">Flolite</span>
+                    <div class="pl-2 text-[10px] leading-tight opacity-80">1.55 mbps<br>100 ms</div>
+                </div>
+                <div class="text-[14px] truncate px-2 text-center header-wh-name-display">mum_bhi_wh_l_01l</div>
+                <div class="flex items-center">
+                    <i class="material-icons text-[18px]">person</i>
+                </div>
+            </header>
+            
+            <div class="breadcrumb">
+                <span class="breadcrumb-item"><a class="breadcrumb-link" onclick="nav('screen-picklists')">INBOX</a><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item"><span class="breadcrumb-link" id="drop-pl-id">F520908531</span><span class="breadcrumb-separator">/</span></span>
+                <span class="breadcrumb-item active text-black">DROP-TOTE</span>
+            </div>
+
+            <div class="progress-bar-container bg-[#7bea7a]">
+                <span class="progress-bar-text text-[#555]">1 / 1</span>
+            </div>
+            
+            <div class="flex-1 flex flex-col items-center p-6">
+                <div class="text-center mb-8 mt-4">
+                    <h2 class="text-[18px] font-bold text-[#3f51b5] mb-1">Scan your Dropzone</h2>
+                    <span class="border border-[#ccc] rounded-[20px] px-3 py-1 text-[11px] text-[#777] inline-block uppercase bg-white">
+                        <span id="drop-type-display">PICK PLUS_SBS</span>
+                    </span>
+                </div>
+                
+                <div class="relative w-[150px] h-[150px] mb-12 flex justify-center items-center">
+                    <div class="absolute inset-0 bg-blue-100 opacity-50 rounded-full blur-xl"></div>
+                    <!-- Download/Drop SVG icon -->
+                    <svg viewBox="0 0 24 24" width="100" height="100" fill="#0065ff">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                </div>
+                
+                <form id="drop-form" class="w-full px-8 mt-auto mb-10 relative">
+                     <div class="relative w-full max-w-[200px] mx-auto">
+                        <div class="absolute w-[200%] h-[1px] bg-black top-1/2 right-full translate-x-[40%] -z-10"></div>
+                        <input type="text" id="drop-input" class="flolite-input text-left text-[14px] border-black !border-[1px] bg-white shadow-sm" placeholder="Scan Dropzone..." required autocomplete="off">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ---------------------------------------------------------
+        // DATABASE INTEGRATION
+        // Fetches data from a GitHub hosted JSON file.
+        // Replace the GITHUB_RAW_URL with your actual GitHub Raw JSON URL.
+        // ---------------------------------------------------------
+        const GITHUB_RAW_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/warehouse_data.json";
+        
+        let DATABASE = { warehouses: [], picklists: [] };
+
+        async function loadDataFromGitHub() {
+            try {
+                const response = await fetch(GITHUB_RAW_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                DATABASE = await response.json();
+                console.log("Database loaded from GitHub successfully.");
+            } catch (error) {
+                console.warn("Failed to load from GitHub (using fallback mock data). Ensure your URL is correct and public. Error:", error);
+                
+                // Fallback mock data to ensure the simulator still runs 
+                // before you set up your GitHub repository JSON.
+                DATABASE = {
+                    warehouses: [
+                        { id: "del_frn_07L", name: "del_frn_07L" },
+                        { id: "mum_bhi_wh_l_01l", name: "Mumbai Xdock Warehouse" },
+                        { id: "blr_fc_01", name: "Bangalore FC 01" }
+                    ],
+                    picklists: [
+                        {
+                            id: "F564836431",
+                            dispatchTime: "October 19 03:25 AM",
+                            type: "NORMAL",
+                            source: "store",
+                            destination: "drop_zone",
+                            status: "PENDING",
+                            items: [
+                                {
+                                    location: "A1-B2-C3-001",
+                                    wid: "WID123",
+                                    title: "Generic Non-Serialized Item",
+                                    type: "general",
+                                    img: "https://placehold.co/150x250/e2e5f4/3f51b5?text=Normal+Item",
+                                    isSerialized: false,
+                                    status: "PENDING"
+                                }
+                            ]
+                        },
+                        {
+                            id: "F593229871",
+                            dispatchTime: "February 16 05:10 PM",
+                            type: "PICK PLUS_SBS",
+                            source: "store",
+                            destination: "drop_zone",
+                            status: "PENDING",
+                            items: [
+                                {
+                                    location: "R1-C7-G0-048",
+                                    wid: "XI90P8R",
+                                    title: "LG 242 8806091271303, 8806091271297 Grey Shiny Steel GL-I292RPZX 37099",
+                                    type: "refrigerator_new",
+                                    img: "https://placehold.co/150x250/e2e5f4/3f51b5?text=LG+Fridge",
+                                    isSerialized: true,
+                                    expectedSerial: "JXHM304NRCQ062523IN",
+                                    status: "PENDING"
+                                }
+                            ]
+                        },
+                        {
+                            id: "F593221701",
+                            dispatchTime: "February 16 10:50 PM",
+                            type: "PICK PLUS_SBS",
+                            source: "store",
+                            destination: "drop_zone",
+                            status: "PENDING",
+                            items: [
+                                {
+                                    location: "R2-D4-G0-112",
+                                    wid: "AC77K9L",
+                                    title: "Samsung 1.5 Ton AC White 12849",
+                                    type: "ac_new",
+                                    img: "https://placehold.co/150x250/e2e5f4/3f51b5?text=Samsung+AC",
+                                    isSerialized: true,
+                                    expectedSerial: "SAM1029384756",
+                                    status: "PENDING"
+                                }
+                            ]
+                        }
+                    ]
+                };
+            }
+        }
+
+        // Initialize data fetching as soon as the DOM is ready
+        window.addEventListener('DOMContentLoaded', loadDataFromGitHub);
+
+        // Application State
+        let appState = {
+            warehouse: 'mum_bhi_wh_l_01l',
+            activePicklist: null,
+            toteId: null,
+            currentItemIndex: 0,
+            pendingScanVal: null,
+            isScanModalOpen: false
+        };
+
+        function nav(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            // Clear inputs on nav
+            document.querySelectorAll('form').forEach(f => f.reset());
+
+            // Auto-focus logic
+            setTimeout(() => {
+                const activeInput = document.querySelector(`#${screenId} input[type="text"]:not([readonly])`);
+                if(activeInput) activeInput.focus();
+            }, 100);
+            
+            // Update global headers
+            document.querySelectorAll('.header-wh-name-display').forEach(el => {
+                el.innerText = appState.warehouse;
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast show ${type}`;
+            let icon = type === 'error' ? 'error' : 'check_circle';
+            toast.innerHTML = `<i class="material-icons">${icon}</i><span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function getProgressText() {
+            if(!appState.activePicklist) return "0 / 0";
+            return `${appState.currentItemIndex} / ${appState.activePicklist.items.length}`;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            const user = document.getElementById('username').value;
+            if(user) {
+                renderWarehouses();
+                nav('screen-warehouse');
+            }
+        });
+
+        function renderWarehouses() {
+            const list = document.getElementById('warehouse-list');
+            list.innerHTML = '';
+            DATABASE.warehouses.forEach(wh => {
+                const li = document.createElement('li');
+                li.className = "border-b border-[#dfe1e6] p-3 text-[#0065ff] font-medium cursor-pointer hover:bg-blue-50 transition-colors";
+                li.innerText = wh.name;
+                li.onclick = () => selectWarehouse(wh.id);
+                list.appendChild(li);
+            });
+        }
+
+        function selectWarehouse(id) {
+            appState.warehouse = id;
+            renderPicklists();
+            nav('screen-picklists');
+        }
+
+        function renderPicklists() {
+            const container = document.getElementById('picklist-container');
+            container.innerHTML = '';
+            
+            // Filter out completed picklists from the database view
+            const pendingPicklists = DATABASE.picklists.filter(pl => pl.status !== "COMPLETED");
+
+            if (pendingPicklists.length === 0) {
+                 container.innerHTML = '<h2 class="text-center text-red-500 font-bold mt-4">No Active tasks found!</h2>';
+                 return;
+            }
+
+            pendingPicklists.forEach(pl => {
+                const card = document.createElement('div');
+                card.className = "bg-[#d7e4ea] border border-[#d9dad7] rounded p-3 shadow-sm cursor-pointer hover:bg-[#c6d7e0] transition-colors relative";
+                card.onclick = () => selectPicklist(pl.id);
+                
+                card.innerHTML = `
+                    <div class="absolute right-3 top-1/2 -mt-[12px]">
+                        <i class="material-icons text-[#777]">chevron_right</i>
+                    </div>
+                    <div class="text-[#212121] font-bold text-[14px] mb-1">${pl.id}</div>
+                    <div class="text-[#777] text-[12px] mb-4">Dispatch by ${pl.dispatchTime}</div>
+                    
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-[#777] text-[12px]">PICKED</span>
+                        <span class="bg-[#3f51b5] text-white text-[10px] px-2.5 py-[3px] rounded-[20px] uppercase font-medium shadow-sm">${pl.type}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center text-[11px] pr-6">
+                        <div>
+                            <div class="text-[#777] mb-1 text-[10px]">Source</div>
+                            <span class="bg-[#1a8c23] text-white px-2 py-0.5 rounded shadow-sm">${pl.source}</span>
+                        </div>
+                        <div>
+                            <div class="text-[#777] mb-1 text-[10px]">Destination</div>
+                            <span class="bg-[#1a8c23] text-white px-2 py-0.5 rounded shadow-sm">${pl.destination}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectPicklist(id) {
+            const pl = DATABASE.picklists.find(p => p.id === id);
+            if(!pl) return;
+            
+            appState.activePicklist = pl;
+            appState.currentItemIndex = 0;
+            
+            // Update UI IDs
+            const idsToUpdate = ['tote-pl-id', 'loc-pl-id', 'wid-pl-id', 'serial-pl-id', 'qc-pl-id', 'close-pl-id', 'drop-pl-id'];
+            idsToUpdate.forEach(elId => {
+                document.getElementById(elId).innerText = id;
+            });
+            
+            document.getElementById('tote-progress-text').innerText = getProgressText();
+            nav('screen-tote');
+        }
+
+        // 4. Add Tote
+        document.getElementById('tote-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val = document.getElementById('tote-input').value.trim();
+            if(val) {
+                appState.toteId = val;
+                document.getElementById('wid-tote-display').innerText = val;
+                document.getElementById('serial-tote-display').innerText = val;
+                document.getElementById('close-tote-display').innerText = val;
+                prepareLocationScreen();
+            }
+        });
+
+        // 5. Location Scan
+        function prepareLocationScreen() {
+            if(appState.currentItemIndex >= appState.activePicklist.items.length) {
+                nav('screen-close-tote');
+                return;
+            }
+            const item = appState.activePicklist.items[appState.currentItemIndex];
+            document.getElementById('target-location').innerText = item.location;
+            document.getElementById('loc-progress-text').innerText = getProgressText();
+            nav('screen-location');
+        }
+
+        document.getElementById('loc-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val = document.getElementById('loc-input').value.trim().toUpperCase();
+            const item = appState.activePicklist.items[appState.currentItemIndex];
+            
+            if(val === item.location.toUpperCase() || val === 'SIM') { 
+                prepareWIDScreen();
+            } else {
+                showToast('Location mismatch. Try again.', 'error');
+                document.getElementById('loc-input').value = '';
+            }
+        });
+
+        // 6. WID Scan
+        function prepareWIDScreen() {
+            const item = appState.activePicklist.items[appState.currentItemIndex];
+            document.getElementById('wid-loc-display').innerText = item.location;
+            document.getElementById('product-img').src = item.img;
+            document.getElementById('product-title').innerText = item.title;
+            document.getElementById('target-wid').innerText = item.wid;
+            document.getElementById('wid-progress-text').innerText = getProgressText();
+            nav('screen-wid');
+        }
+
+        document.getElementById('wid-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val = document.getElementById('wid-input').value.trim().toUpperCase();
+            const item = appState.activePicklist.items[appState.currentItemIndex];
+
+            if(val === item.wid.toUpperCase() || val === 'SIM') {
+                if(item.isSerialized) {
+                    prepareSerialScreen();
+                } else {
+                    prepareQCScreen(); // Skip serial for normal products
+                }
+            } else {
+                showToast('Invalid WID. Try again.', 'error');
+                document.getElementById('wid-input').value = '';
+            }
+        });
+
+        // 6b. Serial Scan (Conditional)
+        function prepareSerialScreen() {
+            const item = appState.activePicklist.items[appState.currentItemIndex];
+            document.getElementById('serial-loc-display').innerText = item.location;
+            document.getElementById('serial-product-img').src = item.img;
+            document.getElementById('serial-product-title').innerText = item.title;
+            document.getElementById('serial-progress-text').innerText = getProgressText();
+            nav('screen-serial');
+        }
+
+        document.getElementById('serial-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(appState.isScanModalOpen) return;
+            const val = document.getElementById('serial-input').value.trim().toUpperCase();
+            if(val) {
+                appState.pendingScanVal = val;
+                document.getElementById('modal-barcode-val').innerText = val;
+                document.getElementById('confirm-modal').classList.add('active');
+                appState.isScanModalOpen = true;
+            }
+        });
+
+        window.confirmScan = function(isConfirmed) {
+            document.getElementById('confirm-modal').classList.remove('active');
+            appState.isScanModalOpen = false;
+            
+            if(isConfirmed && appState.pendingScanVal) {
+                showToast("Serial Verified");
+                prepareQCScreen();
+            } else {
+                document.getElementById('serial-input').value = '';
+                document.getElementById('serial-input').focus();
+            }
+            appState.pendingScanVal = null;
+        }
+
+        // 7. QC Screen
+        function prepareQCScreen() {
+            const item = appState.activePicklist.items[appState.currentItemIndex];
+            document.getElementById('qc-product-img').src = item.img;
+            document.getElementById('qc-product-title').innerText = item.title;
+            document.getElementById('qc-product-type').innerText = item.type || "general";
+            document.getElementById('qc-progress-text').innerText = getProgressText();
+            nav('screen-qc');
+        }
+
+        document.querySelectorAll('input[name="qc_pass"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const failBlock = document.getElementById('qc-fail-reason-block');
+                if(this.value === 'no') {
+                    failBlock.classList.remove('opacity-40', 'pointer-events-none');
+                } else {
+                    failBlock.classList.add('opacity-40', 'pointer-events-none');
+                    document.querySelector('input[name="qc_reason"][value="null"]').checked = true;
+                }
+            });
+        });
+
+        document.getElementById('qc-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Mark item as picked in Database
+            appState.activePicklist.items[appState.currentItemIndex].status = "PICKED";
+            appState.currentItemIndex++;
+            showToast('QC Completed');
+            
+            if (appState.currentItemIndex < appState.activePicklist.items.length) {
+                setTimeout(() => prepareLocationScreen(), 500);
+            } else {
+                setTimeout(() => nav('screen-close-tote'), 500);
+            }
+        });
+
+        // 8. Close Tote Handler
+        window.submitCloseTote = function() {
+            prepareDropScreen();
+        };
+
+        // 9. Drop Screen
+        function prepareDropScreen() {
+            document.getElementById('drop-type-display').innerText = appState.activePicklist.type;
+            nav('screen-drop');
+        }
+
+        document.getElementById('drop-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Tote Dropped Successfully');
+            
+            // Database Update: Mark entire picklist as completed
+            appState.activePicklist.status = "COMPLETED";
+            
+            setTimeout(() => {
+                renderPicklists();
+                nav('screen-picklists');
+            }, 1000);
+        });
+
+        // Global Action Helpers
+        window.closeTote = function() {
+            nav('screen-close-tote');
+        };
+
+        window.sendToIRT = function() {
+            showToast("Item sent to IRT", "error");
+            const activeInput = document.querySelector('.screen.active input[type="text"]');
+            if(activeInput) {
+                activeInput.value = '';
+                activeInput.focus();
+            }
+        };
+
+    </script>
+</body>
+</html>

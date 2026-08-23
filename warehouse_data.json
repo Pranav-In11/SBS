@@ -17,25 +17,6 @@
 {
 "id": "F487956491",
 "dispatchTime": "Today 04:55 PM",
-"type": "{
-"warehouses": [
-{
-"id": "del_frn_07L",
-"name": "Delhi Furniture 07L"
-},
-{
-"id": "mum_bhi_wh_l_01l",
-"name": "Mumbai Xdock Warehouse"
-},
-{
-"id": "blr_fc_01",
-"name": "Bangalore FC 01"
-}
-],
-"picklists": [
-{
-"id": "F487956491",
-"dispatchTime": "Today 04:55 PM",
 "type": "PICK PLUS_SBS",
 "source": "store",
 "destination": "drop_zone",
@@ -45,7 +26,7 @@
 "location": "MTS-G0-A0-01-L1",
 "wid": "XIB9VYL",
 "title": "Pigeon Special 8904216507365 12736 1195",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://myimgs.org/storage/images/30001/Screenshot2026-08-23234731.png",
 "isSerialized": false,
 "status": "PENDING"
@@ -54,7 +35,7 @@
 "location": "MTS-G0-A0-01-L2",
 "wid": "XIBYM85",
 "title": "Hawkins Classic (CL50) 8901165004846 CL50 2150",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://myimgs.org/storage/images/30002/Screenshot2026-08-23235232.png",
 "isSerialized": false,
 "status": "PENDING"
@@ -63,7 +44,7 @@
 "location": "MTS-G0-A0-01-L3",
 "wid": "XIBAS2Q",
 "title": "Pigeon Special Aluminium Pressure Cooker Combo 8904216506856",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://myimgs.org/storage/images/30003/Screenshot2026-08-23235309.png",
 "isSerialized": false,
 "status": "PENDING"
@@ -72,7 +53,7 @@
 "location": "MTS-G0-A0-01-U1",
 "wid": "XIFD109",
 "title": "Leo Natura Aluminium 8908008521133 201321133",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://myimgs.org/storage/images/30004/Screenshot2026-08-23235350.png",
 "isSerialized": false,
 "status": "PENDING"
@@ -81,7 +62,7 @@
 "location": "MTS-G0-A0-01-U2",
 "wid": "WO82588",
 "title": "Pigeon Special 8904216507358 12735 2395",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Pigeon+Special",
 "isSerialized": false,
 "status": "PENDING"
@@ -90,7 +71,7 @@
 "location": "MTS-G0-A0-01-U3",
 "wid": "XIG935S",
 "title": "Prestige Popular Plus 8901365102151 10215 4410",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Prestige+Popular",
 "isSerialized": false,
 "status": "PENDING"
@@ -99,7 +80,7 @@
 "location": "MTS-G0-A0-02-L1",
 "wid": "XI6127L",
 "title": "IMPEX Base Combo 8906062163924 IFC 235",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=IMPEX+Base",
 "isSerialized": false,
 "status": "PENDING"
@@ -108,7 +89,7 @@
 "location": "MTS-G0-A0-02-L2",
 "wid": "XIF8LB6",
 "title": "Leo Natura Eco Select Outer Lid 8908008521140",
-"type": "PICK PLUS_SBS",
+"type": "general",
 "img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Leo+Natura+Lid",
 "isSerialized": false,
 "status": "PENDING"
@@ -126,110 +107,9 @@
 {
 "location": "R1-C7-G0-048",
 "wid": "XIEL3I3",
-"title": "SAMSUNG UA50DUE76AKLXL Black 1 Number LED TV, 1 Number Power Cord, 2 Numbers Battery (AAA Size), 1 Number Remocon 8806095560359 50 125 LED 63900",
+"title": "SAMSUNG UA50DUE76AKLXL Black 1 Number LED TV...",
 "type": "TV",
 "img": "https://myimgs.org/storage/images/30005/Screenshot2026-08-23235635.png",
-"isSerialized": true,
-"expectedSerial": "JXHM304NRCQ062523IN",
-"status": "PENDING"
-}
-]
-}
-]
-}
-",
-"source": "store",
-"destination": "drop_zone",
-"status": "PENDING",
-"items": [
-{
-"location": "MTS-G0-A0-01-L1",
-"wid": "XIB9VYL",
-"title": "Pigeon Special 8904216507365 12736 1195",
-"type": "PICK PLUS_SBS",
-"img": "https://myimgs.org/storage/images/30001/Screenshot2026-08-23234731.png",
-"isSerialized": false,
-"status": "PENDING"
-},
-{
-"location": "MTS-G0-A0-01-L2",
-"wid": "XIBYM85",
-"title": "Hawkins Classic (CL50) 8901165004846 CL50 2150",
-"type": "PICK PLUS_SBS",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Hawkins+Classic",
-"isSerialized": false,
-"status": "PENDING"
-},
-{
-"location": "MTS-G0-A0-01-L3",
-"wid": "XIBAS2Q",
-"title": "Pigeon Special Aluminium Pressure Cooker Combo 8904216506856",
-"type": "PICK PLUS_SBS",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Pigeon+Combo",
-"isSerialized": false,
-"status": "PENDING"
-},
-{
-"location": "MTS-G0-A0-01-U1",
-"wid": "XIFD109",
-"title": "Leo Natura Aluminium 8908008521133 201321133",
-"type": "PICK PLUS_SBS",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Leo+Natura",
-"isSerialized": false,
-"status": "PENDING"
-},
-{
-"location": "MTS-G0-A0-01-U2",
-"wid": "WO82588",
-"title": "Pigeon Special 8904216507358 12735 2395",
-"type": "PICK PLUS_SBS",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Pigeon+Special",
-"isSerialized": false,
-"status": "PENDING"
-},
-{
-"location": "MTS-G0-A0-01-U3",
-"wid": "XIG935S",
-"title": "Prestige Popular Plus 8901365102151 10215 4410",
-"type": "PICK PLUS_SBS",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Prestige+Popular",
-"isSerialized": false,
-"status": "PENDING"
-},
-{
-"location": "MTS-G0-A0-02-L1",
-"wid": "XI6127L",
-"title": "IMPEX Base Combo 8906062163924 IFC 235",
-"type": "PICK PLUS_SBS",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=IMPEX+Base",
-"isSerialized": false,
-"status": "PENDING"
-},
-{
-"location": "MTS-G0-A0-02-L2",
-"wid": "XIF8LB6",
-"title": "Leo Natura Eco Select Outer Lid 8908008521140",
-"type": "PICK PLUS_SBS",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Leo+Natura+Lid",
-"isSerialized": false,
-"status": "PENDING"
-}
-]
-},
-{
-"id": "F593229871",
-"dispatchTime": "February 16 05:10 PM",
-"type": "PICK PLUS_SBS",
-"source": "store",
-"destination": "drop_zone",
-"status": "PENDING",
-"items": [
-{
-"location": "R1-C7-G0-048",
-"wid": "XI90P8R",
-"title": "LG 242 8806091271303, 8806091271297 Grey Shiny Steel GL-I292RPZX 37099",
-"type": "refrigerator_new",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=LG+Fridge",
 "isSerialized": true,
 "expectedSerial": "JXHM304NRCQ062523IN",
 "status": "PENDING"

@@ -15,28 +15,82 @@
 ],
 "picklists": [
 {
-"id": "F564836431",
-"dispatchTime": "October 19 03:25 AM",
-"type": "PICK PLUS_SBS",
+"id": "F487956491",
+"dispatchTime": "Today 04:55 PM",
+"type": "NORMAL",
 "source": "store",
 "destination": "drop_zone",
 "status": "PENDING",
 "items": [
 {
-"location": "A1-B2-C3-001",
-"wid": "WID123",
-"title": "Generic Non-Serialized Item",
+"location": "MTS-G0-A0-01-L1",
+"wid": "XIB9VYL",
+"title": "Pigeon Special 8904216507365 12736 1195",
 "type": "general",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Normal+Item",
+"img": "https://myimgs.org/storage/images/30001/Screenshot2026-08-23234731.png",
 "isSerialized": false,
 "status": "PENDING"
 },
 {
-"location": "A1-B2-C3-002",
-"wid": "WID124",
-"title": "Generic Box Set",
+"location": "MTS-G0-A0-01-L2",
+"wid": "XIBYM85",
+"title": "Hawkins Classic (CL50) 8901165004846 CL50 2150",
 "type": "general",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Box+Set",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Hawkins+Classic",
+"isSerialized": false,
+"status": "PENDING"
+},
+{
+"location": "MTS-G0-A0-01-L3",
+"wid": "XIBAS2Q",
+"title": "Pigeon Special Aluminium Pressure Cooker Combo 8904216506856",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Pigeon+Combo",
+"isSerialized": false,
+"status": "PENDING"
+},
+{
+"location": "MTS-G0-A0-01-U1",
+"wid": "XIFD109",
+"title": "Leo Natura Aluminium 8908008521133 201321133",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Leo+Natura",
+"isSerialized": false,
+"status": "PENDING"
+},
+{
+"location": "MTS-G0-A0-01-U2",
+"wid": "WO82588",
+"title": "Pigeon Special 8904216507358 12735 2395",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Pigeon+Special",
+"isSerialized": false,
+"status": "PENDING"
+},
+{
+"location": "MTS-G0-A0-01-U3",
+"wid": "XIG935S",
+"title": "Prestige Popular Plus 8901365102151 10215 4410",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Prestige+Popular",
+"isSerialized": false,
+"status": "PENDING"
+},
+{
+"location": "MTS-G0-A0-02-L1",
+"wid": "XI6127L",
+"title": "IMPEX Base Combo 8906062163924 IFC 235",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=IMPEX+Base",
+"isSerialized": false,
+"status": "PENDING"
+},
+{
+"location": "MTS-G0-A0-02-L2",
+"wid": "XIF8LB6",
+"title": "Leo Natura Eco Select Outer Lid 8908008521140",
+"type": "general",
+"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Leo+Natura+Lid",
 "isSerialized": false,
 "status": "PENDING"
 }
@@ -58,26 +112,6 @@
 "img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=LG+Fridge",
 "isSerialized": true,
 "expectedSerial": "JXHM304NRCQ062523IN",
-"status": "PENDING"
-}
-]
-},
-{
-"id": "F593221701",
-"dispatchTime": "February 16 10:50 PM",
-"type": "PICK PLUS_SBS",
-"source": "store",
-"destination": "drop_zone",
-"status": "PENDING",
-"items": [
-{
-"location": "R2-D4-G0-112",
-"wid": "AC77K9L",
-"title": "Samsung 1.5 Ton AC White 12849",
-"type": "ac_new",
-"img": "https://placehold.co/150x250/e2e5f4/3f51b5?text=Samsung+AC",
-"isSerialized": true,
-"expectedSerial": "SAM1029384756",
 "status": "PENDING"
 }
 ]
